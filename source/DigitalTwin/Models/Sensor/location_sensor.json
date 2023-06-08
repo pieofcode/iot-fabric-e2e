@@ -1,0 +1,41 @@
+{
+    "@context": "dtmi:dtdl:context;2",
+    "@id": "dtmi:com:pieofcode:LocationSensor;1",
+    "@type": "Interface",
+    "displayName": "Location Sensor Interface",
+    "contents": [
+        {
+            "@type": "Telemetry",
+            "name": "eventDate",
+            "schema": "dateTime"
+        },
+        {
+            "@type": "Property",
+            "name": "temperature",
+            "schema": "double"
+        },
+        {
+            "@type": "Property",
+            "name": "humidity",
+            "schema": "double"
+        },
+        {
+            "@type": "Property",
+            "name": "status",
+            "schema": "string"
+        },
+        {
+            "@type": "Property",
+            "name": "id",
+            "schema": "string"
+        },
+        {
+            "@type": "Command",
+            "name": "reboot",
+            "request": {
+                "name": "delay",
+                "schema": "integer"
+            }
+        }
+    ]
+}

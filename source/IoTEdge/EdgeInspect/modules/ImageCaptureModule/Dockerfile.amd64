@@ -1,0 +1,44 @@
+FROM --platform=linux/amd64 python:3.8.6
+
+WORKDIR /usr/src/app
+
+ENV PYTHONPATH /usr/src/app/.
+
+COPY ./images ./
+
+RUN apt-get update 
+RUN apt-get install -y wget apt-transport-https ca-certificates gnupg odbcinst unixodbc
+
+RUN wget https://packages.microsoft.com/keys/microsoft.asc 
+RUN apt-key add microsoft.asc
+
+#Debian 10
+RUN wget https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN apt-get update 
+# Installs SQL drivers and tools
+RUN wget https://packages.microsoft.com/debian/10/prod/pool/main/m/msodbcsql17/msodbcsql17_17.10.2.1-1_amd64.deb
+RUN ACCEPT_EULA=Y dpkg -i msodbcsql17_17.10.2.1-1_amd64.deb
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
+
+# Installs MS SQL Tools
+RUN wget https://packages.microsoft.com/debian/10/prod/pool/main/m/mssql-tools/mssql-tools_17.10.1.1-1_amd64.deb
+RUN ACCEPT_EULA=Y dpkg -i mssql-tools_17.10.1.1-1_amd64.deb
+RUN ACCEPT_EULA=Y apt-get install -y mssql-tools
+
+# Adds paths to the $PATH environment variable within the .bash_profile and .bashrc files
+RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile
+RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+
+# Enables authentication of users and servers on a network
+RUN apt-get install libgssapi-krb5-2 -y
+
+RUN apt-get install -y libglib2.0-0 libgl1-mesa-glx && rm -rf /var/lib/apt/lists/*
+
+RUN pip install opencv-python numpy scipy pyodbc
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD [ "python3", "-u", "./main.py" ]

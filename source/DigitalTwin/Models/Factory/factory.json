@@ -1,0 +1,69 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:com:pieofcode:Factory;1",
+  "@type": "Interface",
+  "displayName": "Digital Factory Interface",
+  "contents": [
+    {
+      "@type": "Property",
+      "name": "Code",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "status",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "integer",
+        "enumValues": [
+          {
+            "name": "operational",
+            "displayName": "Operational",
+            "enumValue": 1
+          },
+          {
+            "name": "closed",
+            "displayName": "Closed",
+            "enumValue": 2
+          }
+        ]
+      }
+    },
+    {
+      "@type": "Command",
+      "name": "shutdown",
+      "request": {
+        "name": "delay",
+        "schema": "integer"
+      }
+    },
+    {
+      "@type": "Command",
+      "name": "start",
+      "request": {
+        "name": "delay",
+        "schema": "integer"
+      }
+    },
+    {
+      "@type": "Command",
+      "name": "pauseLine",
+      "request": {
+        "name": "lineId",
+        "schema": "integer"
+      }
+    },
+    {
+      "@type": "Relationship",
+      "name": "assemblyLine",
+      "minMultiplicity": 0,
+      "target": "dtmi:com:pieofcode:AssemblyLine;1"
+    },
+    {
+      "@type": "Relationship",
+      "name": "locationSensor",
+      "minMultiplicity": 0,
+      "target": "dtmi:com:pieofcode:LocationSensor;1"
+    }
+  ]
+}

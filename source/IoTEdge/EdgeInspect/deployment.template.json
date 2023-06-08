@@ -1,0 +1,227 @@
+{
+  "$schema-template": "4.0.0",
+  "modulesContent": {
+    "$edgeAgent": {
+      "properties.desired": {
+        "schemaVersion": "1.1",
+        "runtime": {
+          "type": "docker",
+          "settings": {
+            "minDockerVersion": "v1.25",
+            "loggingOptions": "",
+            "registryCredentials": {
+              "dataplat": {
+                "username": "$CONTAINER_REGISTRY_USERNAME_dataplat",
+                "password": "$CONTAINER_REGISTRY_PASSWORD_dataplat",
+                "address": "dataplat.azurecr.io"
+              }
+            }
+          }
+        },
+        "systemModules": {
+          "edgeAgent": {
+            "type": "docker",
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-agent:1.4",
+              "createOptions": {}
+            }
+          },
+          "edgeHub": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/azureiotedge-hub:1.4",
+              "createOptions": {
+                "HostConfig": {
+                  "PortBindings": {
+                    "5671/tcp": [
+                      {
+                        "HostPort": "5671"
+                      }
+                    ],
+                    "8883/tcp": [
+                      {
+                        "HostPort": "8883"
+                      }
+                    ],
+                    "443/tcp": [
+                      {
+                        "HostPort": "443"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "modules": {
+          "blobstoragemodule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/azure-blob-storage:latest",
+              "createOptions": {
+                "Env": [
+                  "LOCAL_STORAGE_ACCOUNT_NAME=localstore",
+                  "LOCAL_STORAGE_ACCOUNT_KEY=imq92sFgNLrMSUQxkYyR1Q=="
+                ],
+                "Volumes": {
+                  "blobdata": {
+                    "external": true
+                  }
+                },
+                "HostConfig": {
+                  "Volumes": [
+                    "blobdata:/blobroot"
+                  ],
+                  "PortBindings": {
+                    "11002/tcp": [
+                      {
+                        "HostPort": "11002"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "AzureSQLEdge": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "mcr.microsoft.com/azure-sql-edge/developer:latest",
+              "createOptions": {
+                "HostConfig": {
+                  "CapAdd": [
+                    "SYS_PTRACE"
+                  ],
+                  "Binds": [
+                    "sqlvolume:/sqlvolume"
+                  ],
+                  "PortBindings": {
+                    "1433/tcp": [
+                      {
+                        "HostPort": "1433"
+                      }
+                    ]
+                  },
+                  "Mounts": [
+                    {
+                      "Type": "volume",
+                      "Source": "sqlvolume",
+                      "Target": "/var/opt/mssql"
+                    }
+                  ]
+                },
+                "Env": [
+                  "MSSQL_AGENT_ENABLED=TRUE",
+                  "ClientTransportType=AMQP_TCP_Only",
+                  "PlanId=asde-developer-on-iot-edge"
+                ]
+              }
+            },
+            "env": {
+              "ACCEPT_EULA": {
+                "value": "Y"
+              },
+              "MSSQL_SA_PASSWORD": {
+                "value": "$MSSQL_SA_Password"
+              },
+              "MSSQL_LCID": {
+                "value": "1033"
+              },
+              "MSSQL_COLLATION": {
+                "value": "SQL_Latin1_General_CP1_CI_AS"
+              }
+            }
+          },
+          "ClassifierModule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.ClassifierModule}",
+              "createOptions": {}
+            }
+          },
+          "ImageCaptureModule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.ImageCaptureModule}",
+              "createOptions": {
+                "Env": [
+                  "IMAGE_ROOT_PATH=./images",
+                  "IMAGE_PROCESSING_ENDPOINT=http://ClassifierModule/image",
+                  "LOCAL_STORAGE_CONNECTION_STR1=DefaultEndpointsProtocol=http;AccountName=localstore;AccountKey=imq92sFgNLrMSUQxkYyR1Q==;BlobEndpoint=http://blobstoragemodule:11002/localstore;",
+                  "LOCAL_STORAGE_CONNECTION_STR=DefaultEndpointsProtocol=http;AccountName=localstore;AccountKey=imq92sFgNLrMSUQxkYyR1Q==;BlobEndpoint=http://blobstoragemodule:11002/localstore;",
+                  "CONTAINER_NAME=image-capture",
+                  "SQLDB_PWD=$MSSQL_SA_Password"
+                ]
+              }
+            }
+          },
+          "MQTTBridgeModule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.MQTTBridgeModule}",
+              "createOptions": {}
+            }
+          }
+        }
+      }
+    },
+    "$edgeHub": {
+      "properties.desired": {
+        "schemaVersion": "1.1",
+        "routes": {
+          "ImageCaptureModuleToIoTHub": "FROM /messages/modules/ImageCaptureModule/outputs/* INTO $upstream",
+          "AzureSQLEdgeToIoTHub": "FROM /messages/modules/AzureSQLEdge/outputs/* INTO $upstream",
+          "MQTTBridgeModuleToIoTHub": "FROM /messages/modules/MQTTBridgeModule/outputs/* INTO $upstream"
+        },
+        "storeAndForwardConfiguration": {
+          "timeToLiveSecs": 7200
+        }
+      }
+    },
+    "blobstoragemodule": {
+      "properties.desired": {
+        "deviceAutoDeleteProperties": {
+          "deleteOn": true,
+          "deleteAfterMinutes": 5,
+          "retainWhileUploading": true
+        },
+        "deviceToCloudUploadProperties": {
+          "uploadOn": true,
+          "uploadOrder": "OldestFirst",
+          "cloudStorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=datapoclake;AccountKey=CW1uR5OK+qHV5fs/sxVcw4E4y73UKAG6vlfgI30WEzRvMBGNGPWjSQHlxNz7HoazJpWhDr2+m+iN+AStB91L+w==;EndpointSuffix=core.windows.net",
+          "storageContainersForUpload": {
+            "image-capture": {
+              "target": "image-capture"
+            }
+          },
+          "deleteAfterUpload": true
+        }
+      }
+    },
+    "ImageCaptureModule": {
+      "properties.desired": {
+        "initConfig": {
+          "imageCaptureDelayInSeconds": 1200
+        }
+      }
+    }
+  }
+}

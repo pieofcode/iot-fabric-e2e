@@ -1,0 +1,6 @@
+
+.create-merge table Landing(document:dynamic)
+
+.create table Landing ingestion json mapping 'landingMapping' '[{"column":"document","path":"$","datatype":"dynamic"}]'
+
+.alter table Landing policy streamingingestion enable;

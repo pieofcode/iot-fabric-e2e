@@ -1,0 +1,51 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:com:pieofcode:AssemblyLine;1",
+  "@type": "Interface",
+  "displayName": "Assembly Line Interface",
+  "contents": [
+    {
+      "@type": "Telemetry",
+      "name": "eventDate",
+      "schema": "dateTime"
+    },
+    {
+      "@type": "Telemetry",
+      "name": "occurrencePhase",
+      "schema": "string"
+    },
+    {
+      "@type": "Telemetry",
+      "name": "part",
+      "schema": "double"
+    },
+    {
+      "@type": "Telemetry",
+      "name": "shift",
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "status",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "id",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lastRun",
+      "schema": "dateTime"
+    },
+    {
+      "@type": "Command",
+      "name": "reboot",
+      "request": {
+        "name": "delay",
+        "schema": "integer"
+      }
+    }
+  ]
+}

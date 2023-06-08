@@ -1,0 +1,12 @@
+"Binds": [
+            "C:/Tools/Data/blobroot:/blobroot" //Windows Volume
+            "/var/blobroot:/blobroot" //Linux Volume
+        ],
+
+# Linux permission for blob store
+sudo chmod -R 700 /var/blobroot
+sudo chown -R 11000:11000 /var/blobroot 
+
+"Binds": [
+"C:/Users/keyurpatel/data:/blobroot"
+],

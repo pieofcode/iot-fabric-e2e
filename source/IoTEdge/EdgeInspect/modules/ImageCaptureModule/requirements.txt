@@ -1,0 +1,8 @@
+azure-iot-device
+requests
+opencv-python
+faker 
+matplotlib
+azure-storage-blob
+pyodbc
+paho-mqtt
