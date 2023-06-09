@@ -11,7 +11,7 @@ namespace TwinTest
     class Program
     {
 
-        static string s_DeviceConnectionString = "HostName=iothub-standard-poc.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=AsdRDCcIvMDgFMFOYZL5RsvPnMFdiGUwATWNXLVyS1o=";
+        static string s_DeviceConnectionString = "<iot_hub_dev_conn_str>";
         static string s_Deviceid = "edge-dev-02";
         private static ModuleClient Client = null;
         static void ConnectionStatusChangeHandler(ConnectionStatus status,
@@ -39,7 +39,7 @@ namespace TwinTest
                 Console.WriteLine("Error in sample: {0}", ex);
             }
 
-           
+
         }
 
         static async Task<Twin> ReadTwinPropertiesAsync(string deviceId)
@@ -53,7 +53,7 @@ namespace TwinTest
 
         static async Task<int> UpdateTwinPropertiesAsync(string deviceId, string eTag)
         {
-           
+
             var registryManager = RegistryManager.CreateFromConnectionString(s_DeviceConnectionString);
             var twin = await registryManager.GetTwinAsync(deviceId);
             Console.WriteLine("Sending app start time as reported property");
