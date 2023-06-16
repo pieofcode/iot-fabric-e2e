@@ -4,7 +4,7 @@
   "image": {
     "repository": "dataplat.azurecr.io/mqttbridgemodule",
     "tag": {
-      "version": "0.0.3",
+      "version": "0.0.2",
       "platforms": {
         "amd64": "./Dockerfile.amd64",
         "amd64.debug": "./Dockerfile.amd64.debug",

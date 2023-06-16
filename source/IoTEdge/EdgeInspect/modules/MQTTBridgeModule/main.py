@@ -20,6 +20,8 @@ CLIENT = None
 # Event indicating client stop
 stop_event = threading.Event()
 
+TOPIC = "iotedge/edgeinspect/event"
+
 
 def create_client():
 
@@ -97,19 +99,27 @@ def main():
     signal.signal(signal.SIGTERM, module_termination_handler)
 
     # Subscribe to the external MQTT Broker
-    mqtt_client = MQTTUtils.connect_mqtt(broker, port)
-    MQTTUtils.subscribe(
-        mqtt_client, "iotedge/edgeinspect/event", handler=on_mqtt_message)
+    # mqtt_client = MQTTUtils.connect_mqtt(broker, port)
+    # logging.info(f"Connected to host - {broker} on port {port}")
+    # logging.info(f"MQTT Client ref: {mqtt_client}")
 
+    # MQTTUtils.subscribe(
+    #     mqtt_client, TOPIC, handler=on_mqtt_message)
+
+    # logging.info(f"Subscribed to topic: {TOPIC}")
+    MODE = os.getenv('MODE', "sub")
+
+    run_test(MODE)
     # Run the sample
     loop = asyncio.get_event_loop()
     try:
+        logging.info("Waiting for the messages...")
         loop.run_until_complete(run_sample(CLIENT))
     except Exception as e:
-        print("Unexpected error %s " % e)
+        logging.error("Unexpected error %s " % e)
         raise
     finally:
-        print("Shutting down IoT Hub Client...")
+        logging.info("Shutting down IoT Hub Client...")
         loop.run_until_complete(CLIENT.shutdown())
         loop.close()
 

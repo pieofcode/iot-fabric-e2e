@@ -177,7 +177,20 @@
             "restartPolicy": "always",
             "settings": {
               "image": "${MODULES.MQTTBridgeModule}",
-              "createOptions": {}
+              "createOptions": {
+                "HostConfig": {
+                  "PortBindings": {
+                    "1883/tcp": [
+                      {
+                        "HostPort": "1883"
+                      }
+                    ]
+                  },
+                  "Env": [
+                    "MODE=sub"
+                  ]
+                }
+              }
             }
           }
         }

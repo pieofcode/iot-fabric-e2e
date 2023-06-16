@@ -57,8 +57,10 @@ class MQTTUtils:
     def subscribe(client: mqtt_client, topic, handler=None):
         client.subscribe(topic)
         if (handler == None):
+            logging.info(f"Default Handler is attached")
             client.on_message = MQTTUtils.on_message
         else:
+            logging.info(f"Client provided Handler is attached")
             client.on_message = handler
 
     @staticmethod
